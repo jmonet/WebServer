@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-08-04 23:12:23
- * @LastEditTime: 2021-08-08 22:57:13
+ * @LastEditTime: 2021-08-10 00:17:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \old_server_0.1\requestData.cpp
@@ -38,16 +38,16 @@ priority_queue<mytimer* , deque<mytimer*>, timerCmp> myTimerQueue;
 //空参数构造函数
 requestData::requestData():
     now_read_pos(0), state(STATE_PARSE_URI), h_state(h_start),
-    keep_alive(false),againTimes(0),timer(NULL)
+    keep_alive(false), againTimes(0), timer(NULL)
 {
     cout << "requestData constructed !" << endl;
 }
 
 //有参构造函数
-requestData::requestData(int _epollfd, int _fd, std::string _path):
+requestData::requestData(int epoll_fd, int _fd, std::string _path):
     now_read_pos(0), state(STATE_PARSE_URI), h_state(h_start),
     keep_alive(false), againTimes(0), timer(NULL),
-    path(_path), fd(_fd), epollfd(_epollfd)
+    path(_path), fd(_fd), epollfd(epoll_fd)
 {
 
 }
@@ -131,9 +131,9 @@ void requestData::handleRequest()
         {
             // 有请求出现但是出现读不到数据，可能是request Aborted，或者来自网络的原因数据没到达
             perror("read_num == 0");
-            if( error == EAGAIN )
+            if( error == EAGAIN )   //错误EAGAIN，提示应用程序现在没有数据可读请稍后再试
             {
-                if ( againTimes > AGAIN_MAX_TIMES )
+                if ( againTimes > AGAIN_MAX_TIMES )    //请求超过200次就放弃
                     isError = true;
                 else
                     ++againTimes;
@@ -142,7 +142,7 @@ void requestData::handleRequest()
                 isError = true;
             break;
         }
-        string now_read(buff, buff + read_num);
+        string now_read(buff, buff + read_num); //string s(str,stridx) //将字符串str内“始于位置stridx”的部分当作字符串的初值
         content += now_read;
 
         if( state == STATE_PARSE_URI )
@@ -221,7 +221,7 @@ void requestData::handleRequest()
         }
     }
 
-    if (isError)
+    if (isError)    //错误处理，分别在上面readn， parse_URI， parse_Headers， headers.find， analysisRequesr中有判断
     {
         delete this;
         return;
@@ -346,5 +346,21 @@ int requestData::parse_URI()
 
     state = STATE_PARSE_HEADERS;
     return PARSE_URI_SUCCESS;
+
+}
+
+//语义分析头
+int requestData::parse_Headers()
+{
+    string &str = content;
+    int key_start = -1, key_end = -1, value_start = -1, value_end = -1;
+    int now_read_line_begin = 0;
+    bool notFinish = true;
+    for (int i = 0; i < str.size() && notFinish; i++)
+    {
+
+        
+    }
+
 
 }

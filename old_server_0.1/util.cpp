@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-07-27 23:22:00
- * @LastEditTime: 2021-08-08 21:27:22
+ * @LastEditTime: 2021-08-10 00:00:13
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \old_server_0.1\util.cpp
@@ -47,7 +47,7 @@ ssize_t readn(int fd, void *buff, size_t n)
     char *ptr = (char*)buff;
     while( nleft > 0 )
     {
-        if( (nread = read(fd,ptr,nleft)) < 0 )  //对读到小于0的数据进行三个错误判断
+        if( (nread = read(fd,ptr,nleft)) < 0 )  //对读到小于0的数据进行三个错误判断,如果成功读取的话,返回读到的字节数大小,否则返回-1
         {
             if( errno == EINTR )    //读的过程中遇到了中断
                 nread = 0;
